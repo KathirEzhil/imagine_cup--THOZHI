@@ -390,3 +390,5 @@ Built with empathy for homemakers who deserve recognition, support, and care.
 ---
 
 **Note**: This app is not a substitute for professional medical advice. Always consult healthcare professionals for medical concerns.
+#   i m a g i n e _ c u p - - - T H O Z H I  
+ 
