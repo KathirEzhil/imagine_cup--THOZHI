@@ -5,7 +5,7 @@ import '../models/burnout_model.dart';
 import '../core/constants/app_constants.dart';
 
 class FirestoreService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
   
   // User Operations
   Future<void> createUser(UserModel user) async {

@@ -2,43 +2,50 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Colors - Soft, empathetic palette
-  static const Color primaryBlue = Color(0xFF4A90E2);
-  static const Color primaryPurple = Color(0xFF9B59B6);
+  // Colors - Updated from reference images
+  static const Color softRose = Color(0xFFD38E9D); // Auth/Profile background
+  static const Color dashboardGreen = Color(0xFF99C59B); // Dashboard background
+  static const Color darkDashboardGreen = Color(0xFF536958); // Check-in result background
+  static const Color accentBlue = Color(0xFF6E85C1); // Primary buttons
+  static const Color deepBlue = Color(0xFF485891); // Titles and dark accents
+  static const Color logoBlue = Color(0xFF2C3E50);
+  static const Color softGrey = Color(0xFFE0E0E0);
+  
   static const Color lightPink = Color(0xFFFFF0F5);
   static const Color lightGreen = Color(0xFFE8F5E9);
-  static const Color softGreen = Color(0xFFC8E6C9);
-  static const Color darkGreen = Color(0xFF66BB6A);
-  static const Color lightGray = Color(0xFFF5F5F5);
-  static const Color mediumGray = Color(0xFFE0E0E0);
-  static const Color darkGray = Color(0xFF424242);
   static const Color textDark = Color(0xFF212121);
   static const Color textLight = Color(0xFF757575);
-  static const Color accentOrange = Color(0xFFFFB74D);
-  static const Color accentYellow = Color(0xFFFFEB3B);
   static const Color accentRed = Color(0xFFE57373);
+  static const Color accentYellow = Color(0xFFFFEB3B);
   
-  // Burnout Level Colors
-  static const Color burnoutLowColor = Color(0xFF4CAF50);
-  static const Color burnoutMediumColor = Color(0xFFFF9800);
-  static const Color burnoutHighColor = Color(0xFFE57373);
+  // Legacy Colors (for backward compatibility)
+  static const Color mediumGray = Color(0xFF9E9E9E);
+  static const Color primaryPurple = Color(0xFF673AB7);
+  static const Color primaryBlue = Color(0xFF2196F3);
+  static const Color darkGray = Color(0xFF333333);
+  static const Color lightPink_legacy = Color(0xFFFCE4EC);
   
-  // Gradient
+  // Gradients
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [primaryBlue, primaryPurple],
+    colors: [Color(0xFF673AB7), Color(0xFF512DA8)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+  
+  // Burnout Level Colors
+  static const Color burnoutLowColor = Color(0xFF81C784);
+  static const Color burnoutMediumColor = Color(0xFFFFB74D);
+  static const Color burnoutHighColor = Color(0xFFE57373);
   
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      primaryColor: primaryBlue,
-      scaffoldBackgroundColor: lightPink,
+      primaryColor: accentBlue,
+      scaffoldBackgroundColor: softRose, // Default to registration color
       colorScheme: const ColorScheme.light(
-        primary: primaryBlue,
-        secondary: primaryPurple,
+        primary: accentBlue,
+        secondary: deepBlue,
         surface: Colors.white,
         error: accentRed,
         onPrimary: Colors.white,
@@ -46,7 +53,7 @@ class AppTheme {
         onSurface: textDark,
         onError: Colors.white,
       ),
-      textTheme: GoogleFonts.interTextTheme(
+      textTheme: GoogleFonts.outfitTextTheme(
         const TextTheme(
           displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: textDark),
           displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: textDark),
@@ -54,97 +61,64 @@ class AppTheme {
           headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: textDark),
           headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: textDark),
           headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: textDark),
-          titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: textDark),
+          titleLarge: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: deepBlue),
           titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: textDark),
-          titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textDark),
           bodyLarge: TextStyle(fontSize: 16, color: textDark),
           bodyMedium: TextStyle(fontSize: 14, color: textDark),
           bodySmall: TextStyle(fontSize: 12, color: textLight),
-          labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: textDark),
-          labelMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: textDark),
-          labelSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: textLight),
         ),
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: textDark),
-        titleTextStyle: GoogleFonts.inter(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: textDark,
-        ),
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryPurple,
+          backgroundColor: accentBlue,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          minimumSize: const Size(double.infinity, 56),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
+          textStyle: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
-          elevation: 2,
+          elevation: 0,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: primaryPurple,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          foregroundColor: Colors.white,
+          backgroundColor: deepBlue.withOpacity(0.8),
+          minimumSize: const Size(double.infinity, 44),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
-          side: const BorderSide(color: primaryPurple, width: 2),
-          textStyle: GoogleFonts.inter(
+          side: BorderSide.none,
+          textStyle: const TextStyle(
             fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: primaryPurple,
-          textStyle: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: softGrey.withOpacity(0.8),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: mediumGray),
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: mediumGray),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: primaryPurple, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: accentRed),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        hintStyle: GoogleFonts.inter(color: textLight),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
       cardTheme: CardThemeData(
         color: Colors.white,
-        elevation: 2,
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: primaryPurple,
-        foregroundColor: Colors.white,
       ),
     );
   }

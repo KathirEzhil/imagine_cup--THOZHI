@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/burnout_provider.dart';
 import '../../widgets/gradient_button.dart';
+import '../../widgets/app_logo.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/constants/app_constants.dart';
 import '../dashboard/dashboard_screen.dart';
@@ -25,20 +27,13 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
   final _notesController = TextEditingController();
   bool _isLoading = false;
   
-  @override
-  void dispose() {
-    _notesController.dispose();
-    super.dispose();
-  }
-  
+  bool _showSnapshot = false;
+
   Future<void> _submitCheckIn() async {
     if (!_formKey.currentState!.validate()) return;
-    
     setState(() => _isLoading = true);
-    
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final burnoutProvider = Provider.of<BurnoutProvider>(context, listen: false);
-    
     if (userProvider.user != null) {
       await burnoutProvider.createDailyCheckIn(
         userId: userProvider.user!.id,
@@ -48,46 +43,30 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
         sleepHours: _sleepHours,
         activityMinutes: _activityMinutes,
         workloadIntensity: _workloadIntensity,
-        notes: _notesController.text.trim().isEmpty 
-            ? null 
-            : _notesController.text.trim(),
+        notes: _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
       );
-      
-      // Recalculate burnout
       await burnoutProvider.calculateBurnout(userProvider.user!.id);
     }
-    
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Daily check-in completed!'),
-        backgroundColor: AppTheme.burnoutLowColor,
-      ),
-    );
-    
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const DashboardScreen()),
-    );
+    setState(() {
+      _isLoading = false;
+      _showSnapshot = true;
+    });
   }
   
   @override
   Widget build(BuildContext context) {
+    if (_showSnapshot) return _buildSnapshotView();
+
     return Scaffold(
-      backgroundColor: AppTheme.lightPink,
+      backgroundColor: AppTheme.softRose,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppTheme.textDark),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
           'Daily Check-In',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
       body: SafeArea(
@@ -100,70 +79,23 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
               children: [
                 Text(
                   'Take a moment to check in with yourself',
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: AppTheme.textLight,
-                  ),
+                  style: GoogleFonts.outfit(color: Colors.white.withOpacity(0.9), fontSize: 16),
                 ),
                 const SizedBox(height: 32),
-                // Stress Level
-                _buildSection(
-                  'Stress Level',
-                  'How stressed do you feel today?',
-                  _buildStressSlider(),
-                ),
-                const SizedBox(height: 24),
-                // Energy Level
-                _buildSection(
-                  'Energy Level',
-                  'How energetic do you feel?',
-                  _buildEnergySelector(),
-                ),
-                const SizedBox(height: 24),
-                // Mood
-                _buildSection(
-                  'Mood',
-                  'How are you feeling?',
-                  _buildMoodSelector(),
-                ),
-                const SizedBox(height: 24),
-                // Sleep Hours
-                _buildSection(
-                  'Sleep',
-                  'How many hours did you sleep last night?',
-                  _buildSleepSlider(),
-                ),
-                const SizedBox(height: 24),
-                // Activity
-                _buildSection(
-                  'Physical Activity',
-                  'How many minutes of physical activity today?',
-                  _buildActivitySelector(),
-                ),
-                const SizedBox(height: 24),
-                // Workload
-                _buildSection(
-                  'Workload Intensity',
-                  'How intense was your workload today?',
-                  _buildWorkloadSlider(),
-                ),
-                const SizedBox(height: 24),
-                // Notes (optional)
-                TextFormField(
-                  controller: _notesController,
-                  maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Notes (optional)',
-                    hintText: 'Any additional thoughts...',
-                    prefixIcon: Icon(Icons.note_outlined),
-                  ),
-                ),
+                _buildFormCard('Stress Level', _buildStressSlider()),
+                const SizedBox(height: 16),
+                _buildFormCard('Energy Level', _buildEnergySelector()),
+                const SizedBox(height: 16),
+                _buildFormCard('Sleep', _buildSleepSlider()),
+                const SizedBox(height: 16),
+                _buildFormCard('Activity', _buildActivitySelector()),
                 const SizedBox(height: 32),
                 if (_isLoading)
-                  const Center(child: CircularProgressIndicator())
+                  const Center(child: CircularProgressIndicator(color: Colors.white))
                 else
-                  GradientButton(
-                    text: 'Complete Check-In',
+                  ElevatedButton(
                     onPressed: _submitCheckIn,
+                    child: const Text('Complete Check-In'),
                   ),
               ],
             ),
@@ -172,188 +104,203 @@ class _DailyCheckInScreenState extends State<DailyCheckInScreen> {
       ),
     );
   }
-  
-  Widget _buildSection(String title, String subtitle, Widget content) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          subtitle,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: AppTheme.textLight,
-          ),
-        ),
-        const SizedBox(height: 12),
-        content,
-      ],
+
+  Widget _buildFormCard(String title, Widget content) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppTheme.deepBlue)),
+          const SizedBox(height: 12),
+          content,
+        ],
+      ),
     );
   }
-  
-  Widget _buildStressSlider() {
-    return Column(
-      children: [
-        Slider(
-          value: _stressLevel,
-          min: 0,
-          max: 10,
-          divisions: 10,
-          label: _stressLevel.toStringAsFixed(1),
-          activeColor: AppTheme.primaryPurple,
-          onChanged: (value) {
-            setState(() {
-              _stressLevel = value;
-            });
-          },
+
+  Widget _buildSnapshotView() {
+    return Scaffold(
+      backgroundColor: AppTheme.darkDashboardGreen,
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        title: AppLogo(size: 40),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
           children: [
-            Text('Low', style: Theme.of(context).textTheme.bodySmall),
-            Text('High', style: Theme.of(context).textTheme.bodySmall),
+            // Wellness Score Circle
+            _buildWellnessScoreCircle(92),
+            const SizedBox(height: 40),
+            
+            // Metrics (Sleep/Activity)
+            Row(
+              children: [
+                Expanded(child: _buildMetricTile(Icons.bedtime_outlined, 'Sleep: 7.8 hrs', 0.7)),
+                const SizedBox(width: 16),
+                Expanded(child: _buildMetricTile(Icons.fitness_center, 'Activity: 60 mins', 0.5)),
+              ],
+            ),
+            const SizedBox(height: 48),
+            
+            // Snapshot Grid
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Today\'s Snapshot',
+                style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 16),
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 1.2,
+              children: [
+                _buildSnapshotGridItem(Icons.sentiment_very_satisfied, 'Joyful', const Color(0xFFC8E6C9)),
+                _buildSnapshotGridItem(Icons.battery_5_bar, 'Energy: High', const Color(0xFFDCEDC8)),
+                _buildSnapshotGridItem(Icons.waves, 'Stress: Low', const Color(0xFFB2DFDB)),
+                _buildSnapshotGridItem(Icons.grid_view_rounded, 'Workload: Mod.', const Color(0xFFD1C4E9)),
+              ],
+            ),
           ],
         ),
-      ],
+      ),
     );
   }
-  
+
+  Widget _buildWellnessScoreCircle(int score) {
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          SizedBox(
+            width: 180,
+            height: 180,
+            child: CircularProgressIndicator(
+              value: score / 100,
+              strokeWidth: 12,
+              backgroundColor: Colors.white.withOpacity(0.1),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF81C784)),
+            ),
+          ),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$score',
+                style: GoogleFonts.outfit(color: Colors.white, fontSize: 64, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Wellness Score',
+                style: GoogleFonts.outfit(color: Colors.white.withOpacity(0.7), fontSize: 14),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetricTile(IconData icon, String label, double progress) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: Colors.white, size: 20),
+              const SizedBox(width: 8),
+              Expanded(child: Text(label, style: GoogleFonts.outfit(color: Colors.white, fontSize: 12))),
+            ],
+          ),
+          const SizedBox(height: 12),
+          LinearProgressIndicator(
+            value: progress,
+            backgroundColor: Colors.white.withOpacity(0.1),
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFDCEDC8)),
+            minHeight: 6,
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSnapshotGridItem(IconData icon, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: color, size: 32),
+          const SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.outfit(color: color, fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStressSlider() {
+    return Slider(
+      value: _stressLevel,
+      min: 0, max: 10, divisions: 10,
+      activeColor: AppTheme.accentBlue,
+      onChanged: (val) => setState(() => _stressLevel = val),
+    );
+  }
+
   Widget _buildEnergySelector() {
     return Wrap(
       spacing: 8,
-      runSpacing: 8,
-      children: AppConstants.energyLevels.map((level) {
-        final isSelected = _energyLevel == level;
-        return ChoiceChip(
-          label: Text(level),
-          selected: isSelected,
-          onSelected: (selected) {
-            setState(() {
-              _energyLevel = level;
-            });
-          },
-          selectedColor: AppTheme.primaryPurple.withOpacity(0.2),
-        );
-      }).toList(),
+      children: ['Low', 'Moderate', 'High'].map((l) => ChoiceChip(
+        label: Text(l),
+        selected: _energyLevel == l,
+        onSelected: (s) => setState(() => _energyLevel = l),
+      )).toList(),
     );
   }
-  
-  Widget _buildMoodSelector() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: AppConstants.moodOptions.map((mood) {
-        final isSelected = _mood == mood;
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              _mood = mood;
-            });
-          },
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isSelected 
-                  ? AppTheme.primaryPurple.withOpacity(0.2) 
-                  : Colors.transparent,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: isSelected ? AppTheme.primaryPurple : AppTheme.mediumGray,
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-            child: Text(
-              mood,
-              style: const TextStyle(fontSize: 32),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-  
+
   Widget _buildSleepSlider() {
-    return Column(
-      children: [
-        Slider(
-          value: _sleepHours,
-          min: 0,
-          max: 12,
-          divisions: 24,
-          label: '${_sleepHours.toStringAsFixed(1)} hrs',
-          activeColor: AppTheme.primaryPurple,
-          onChanged: (value) {
-            setState(() {
-              _sleepHours = value;
-            });
-          },
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('0 hrs', style: Theme.of(context).textTheme.bodySmall),
-            Text('12 hrs', style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
-      ],
+    return Slider(
+      value: _sleepHours,
+      min: 0, max: 12, divisions: 12,
+      activeColor: AppTheme.accentBlue,
+      onChanged: (val) => setState(() => _sleepHours = val),
     );
   }
-  
+
   Widget _buildActivitySelector() {
-    return Column(
-      children: [
-        Slider(
-          value: _activityMinutes.toDouble(),
-          min: 0,
-          max: 120,
-          divisions: 24,
-          label: '$_activityMinutes mins',
-          activeColor: AppTheme.primaryPurple,
-          onChanged: (value) {
-            setState(() {
-              _activityMinutes = value.round();
-            });
-          },
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('0 mins', style: Theme.of(context).textTheme.bodySmall),
-            Text('120 mins', style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildWorkloadSlider() {
-    return Column(
-      children: [
-        Slider(
-          value: _workloadIntensity,
-          min: 0,
-          max: 10,
-          divisions: 10,
-          label: _workloadIntensity.toStringAsFixed(1),
-          activeColor: AppTheme.primaryPurple,
-          onChanged: (value) {
-            setState(() {
-              _workloadIntensity = value;
-            });
-          },
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Light', style: Theme.of(context).textTheme.bodySmall),
-            Text('Heavy', style: Theme.of(context).textTheme.bodySmall),
-          ],
-        ),
-      ],
+    return Slider(
+      value: _activityMinutes.toDouble(),
+      min: 0, max: 120, divisions: 12,
+      activeColor: AppTheme.accentBlue,
+      onChanged: (val) => setState(() => _activityMinutes = val.toInt()),
     );
   }
 }

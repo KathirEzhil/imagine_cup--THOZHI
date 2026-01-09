@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../core/theme/app_theme.dart';
 import '../core/constants/app_constants.dart';
 
@@ -17,46 +18,56 @@ class AppLogo extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Circular logo with stylized head icon
+        // Circular logo container
         Container(
           width: size,
           height: size,
-          decoration: const BoxDecoration(
-            color: AppTheme.primaryBlue,
+          decoration: BoxDecoration(
+            color: AppTheme.logoBlue,
             shape: BoxShape.circle,
+            border: Border.all(color: Colors.white.withOpacity(0.2), width: 2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Icon(
-            Icons.face,
+            Icons.spa_rounded,
             size: size * 0.6,
-            color: Colors.white,
+            color: AppTheme.dashboardGreen,
           ),
         ),
         const SizedBox(height: 16),
-        // App name with gradient
+        // "Thozhi" in the special pill container
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           decoration: BoxDecoration(
-            gradient: AppTheme.primaryGradient,
-            borderRadius: BorderRadius.circular(12),
+            color: AppTheme.logoBlue,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-          child: Text(
-            AppConstants.appName,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+          child: RichText(
+            text: TextSpan(
+              style: GoogleFonts.outfit(
+                fontSize: size * 0.25,
+                fontWeight: FontWeight.bold,
+              ),
+              children: const [
+                TextSpan(text: 'Tho', style: TextStyle(color: Color(0xFF4A90E2))),
+                TextSpan(text: 'zhi', style: TextStyle(color: Color(0xFFD38E9D))),
+              ],
             ),
           ),
         ),
-        if (showTagline) ...[
-          const SizedBox(height: 12),
-          Text(
-            AppConstants.appTagline,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: AppTheme.textLight,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
       ],
     );
   }

@@ -44,10 +44,39 @@ class BurnoutProvider with ChangeNotifier {
         await calculateBurnout(userId);
       }
     } catch (e) {
-      _error = e.toString();
+      if (userId == 'guest_user') {
+        _generateMockLogs();
+        _error = null;
+      } else {
+        _error = e.toString();
+      }
     } finally {
       _setLoading(false);
     }
+  }
+
+  void _generateMockLogs() {
+    final now = DateTime.now();
+    _recentLogs = List.generate(14, (index) {
+      final date = now.subtract(Duration(days: 13 - index));
+      return DailyLogModel(
+        id: 'mock_$index',
+        userId: 'guest_user',
+        date: DateTime(date.year, date.month, date.day),
+        stressLevel: 4.0 + (index % 5),
+        energyLevel: ['Low', 'Moderate', 'High'][index % 3],
+        mood: ['😢', '😐', '😌', '😊'][index % 4],
+        sleepHours: 6.0 + (index % 3),
+        activityMinutes: 15 + (index * 5) % 45,
+        workloadIntensity: 4.0 + (index % 4),
+        createdAt: date,
+      );
+    });
+    
+    _todayLog = _recentLogs.last;
+    _currentBurnout = BurnoutModel.calculateFromLogs('guest_user', _recentLogs);
+    _burnoutHistory = [_currentBurnout!];
+    notifyListeners();
   }
   
   Stream<List<DailyLogModel>> streamDailyLogs(String userId) {
@@ -167,7 +196,14 @@ class BurnoutProvider with ChangeNotifier {
       // Note: streamBurnoutAssessments returns a stream, so we'd use that for real-time updates
       _error = null;
     } catch (e) {
-      _error = e.toString();
+      if (userId == 'guest_user') {
+        _error = null;
+        if (_currentBurnout == null) {
+          _generateMockLogs();
+        }
+      } else {
+        _error = e.toString();
+      }
     } finally {
       _setLoading(false);
     }

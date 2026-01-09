@@ -3,8 +3,8 @@ import '../models/user_model.dart';
 import 'firestore_service.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirestoreService _firestoreService = FirestoreService();
+  FirebaseAuth get _auth => FirebaseAuth.instance;
+  FirestoreService get _firestoreService => FirestoreService();
   
   // Get current user
   User? get currentUser => _auth.currentUser;

@@ -17,11 +17,13 @@ class UserProvider with ChangeNotifier {
   bool _isOnboardingComplete = false;
   bool _hasConsent = false;
   String _selectedLanguage = AppConstants.langEnglish;
+  bool _isGuest = false;
   
   UserModel? get user => _user;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  bool get isAuthenticated => _user != null;
+  bool get isAuthenticated => _user != null || _isGuest;
+  bool get isGuest => _isGuest;
   bool get isOnboardingComplete => _isOnboardingComplete;
   bool get hasConsent => _hasConsent;
   String get selectedLanguage => _selectedLanguage;
@@ -222,14 +224,31 @@ class UserProvider with ChangeNotifier {
   Future<void> signOut() async {
     _setLoading(true);
     try {
-      await _authService.signOut();
+      if (!_isGuest) {
+        await _authService.signOut();
+      }
       _user = null;
+      _isGuest = false;
       _error = null;
     } catch (e) {
       _error = e.toString();
     } finally {
       _setLoading(false);
     }
+  }
+
+  void enableGuestMode() {
+    _isGuest = true;
+    _user = UserModel(
+      id: 'guest_user',
+      name: 'Thozhi Friend',
+      email: 'guest@example.com',
+      createdAt: DateTime.now(),
+      profileCompleted: true,
+    );
+    _isOnboardingComplete = true;
+    _hasConsent = true;
+    notifyListeners();
   }
   
   Future<void> deleteAccount() async {

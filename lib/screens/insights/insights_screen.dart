@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/burnout_provider.dart';
-import '../../widgets/wellness_score_gauge.dart';
-import '../../widgets/burnout_indicator.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/utils/formatters.dart';
-import '../../models/burnout_model.dart';
-import '../interventions/interventions_screen.dart';
 
 class InsightsScreen extends StatefulWidget {
   const InsightsScreen({super.key});
@@ -29,7 +25,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
   void _loadData() {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final burnoutProvider = Provider.of<BurnoutProvider>(context, listen: false);
-    
     if (userProvider.user != null) {
       burnoutProvider.loadDailyLogs(userProvider.user!.id);
       burnoutProvider.loadBurnoutHistory(userProvider.user!.id);
@@ -38,471 +33,192 @@ class _InsightsScreenState extends State<InsightsScreen> {
   
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final burnoutProvider = Provider.of<BurnoutProvider>(context, listen: false);
-    
     return Scaffold(
-      backgroundColor: AppTheme.lightGreen,
+      backgroundColor: AppTheme.dashboardGreen,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Wellness Score & Insights',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: Text('Wellness Insights', style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
       ),
-      body: SafeArea(
-        child: Consumer2<UserProvider, BurnoutProvider>(
-          builder: (context, userProvider, burnoutProvider, child) {
-            final wellnessScore = burnoutProvider.wellnessScore;
-            final burnout = burnoutProvider.currentBurnout;
-            final recentLogs = burnoutProvider.recentLogs;
-            
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Wellness Score Gauge
-                  Center(
-                    child: WellnessScoreGauge(score: wellnessScore),
-                  ),
-                  const SizedBox(height: 32),
-                  // Key Metrics
-                  _buildKeyMetrics(recentLogs),
-                  const SizedBox(height: 32),
-                  // Today's Snapshot
-                  _buildTodaysSnapshot(recentLogs.isNotEmpty ? recentLogs.first : null),
-                  const SizedBox(height: 32),
-                  // Burnout Status
-                  if (burnout != null) _buildBurnoutStatus(burnout, burnoutProvider: burnoutProvider),
-                  const SizedBox(height: 32),
-                  // Weekly Trend
-                  _buildWeeklyTrend(burnoutProvider: burnoutProvider),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildKeyMetrics(List logs) {
-    if (logs.isEmpty) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text('No data available yet'),
-        ),
-      );
-    }
-    
-    final latestLog = logs.first;
-    
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Key Metrics',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+            // Weekly Header
+            _buildWeeklyHeader(),
+            const SizedBox(height: 32),
+            
+            // Trend Graph
+            _buildAverageWellnessGraph(),
+            const SizedBox(height: 32),
+            
+            // Score Highlights
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildScoreCircle(75, 'Good', Colors.orange),
+                _buildScoreCircle(62, 'Moderate', Colors.amber),
+                _buildScoreCircle(84, 'Excellent', Colors.green),
+              ],
             ),
-            const SizedBox(height: 16),
-            _buildMetricItem(
-              Icons.bedtime,
-              'Sleep',
-              Formatters.formatHours(latestLog.sleepHours),
-              AppTheme.burnoutLowColor,
-            ),
-            const SizedBox(height: 12),
-            _buildMetricItem(
-              Icons.directions_run,
-              'Activity',
-              Formatters.formatActivityTime(latestLog.activityMinutes),
-              AppTheme.burnoutLowColor,
-            ),
+            const SizedBox(height: 40),
+            
+            // Risk Indicator
+            _buildRiskLevelIndicator(),
+            const SizedBox(height: 40),
+            
+            // Metrics Grid
+            _buildMetricsGrid(),
           ],
         ),
       ),
     );
   }
-  
-  Widget _buildMetricItem(IconData icon, String label, String value, Color color) {
-    return Row(
+
+  Widget _buildWeeklyHeader() {
+    return Column(
       children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            '$label: $value',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => Text(d, style: GoogleFonts.outfit(color: Colors.white70, fontSize: 12))).toList(),
         ),
-        Container(
-          width: 60,
-          height: 8,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.3),
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: FractionallySizedBox(
-            widthFactor: 0.7,
-            alignment: Alignment.centerLeft,
-            child: Container(
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(4),
-              ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(7, (i) => Text('${25 + i}', style: GoogleFonts.outfit(color: Colors.white, fontWeight: i == 4 ? FontWeight.bold : FontWeight.normal, fontSize: 16))).toList(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAverageWellnessGraph() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Average Wellness', style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 20),
+        SizedBox(
+          height: 180,
+          child: LineChart(
+            LineChartData(
+              gridData: const FlGridData(show: false),
+              titlesData: const FlTitlesData(show: false),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: [
+                    const FlSpot(0, 70),
+                    const FlSpot(1, 65),
+                    const FlSpot(2, 80),
+                    const FlSpot(3, 75),
+                    const FlSpot(4, 85),
+                    const FlSpot(5, 78),
+                    const FlSpot(6, 92),
+                  ],
+                  isCurved: true,
+                  color: const Color(0xFFD38E9D),
+                  barWidth: 4,
+                  dotData: const FlDotData(show: false),
+                  belowBarData: BarAreaData(
+                    show: true,
+                    color: const Color(0xFFD38E9D).withOpacity(0.1),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ],
     );
   }
-  
-  Widget _buildTodaysSnapshot(dynamic log) {
-    if (log == null) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text('Complete your daily check-in to see today\'s snapshot'),
+
+  Widget _buildScoreCircle(int score, String label, Color color) {
+    return Column(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: color, width: 2),
+          ),
+          child: Center(
+            child: Text('$score', style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          ),
         ),
-      );
-    }
-    
-    final moodLabels = {
-      '😊': 'Joyful',
-      '😌': 'Calm',
-      '😐': 'Neutral',
-      '😔': 'Sad',
-      '😢': 'Very Sad',
-    };
-    
-    final energyColors = {
-      'Very Low': AppTheme.accentRed,
-      'Low': AppTheme.accentOrange,
-      'Moderate': AppTheme.accentYellow,
-      'High': AppTheme.burnoutLowColor,
-      'Very High': AppTheme.darkGreen,
-    };
-    
-    final workloadLabels = {
-      (0, 3): 'Low',
-      (4, 6): 'Moderate',
-      (7, 10): 'High',
-    };
-    
-    String workloadLabel = 'Moderate';
-    for (var entry in workloadLabels.entries) {
-      if (log.workloadIntensity >= entry.key.$1 && log.workloadIntensity <= entry.key.$2) {
-        workloadLabel = entry.value;
-        break;
-      }
-    }
-    
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Today\'s Snapshot',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+        const SizedBox(height: 8),
+        Text(label, style: GoogleFonts.outfit(color: Colors.white70, fontSize: 12)),
+      ],
+    );
+  }
+
+  Widget _buildRiskLevelIndicator() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Risk Level', style: GoogleFonts.outfit(color: Colors.white70)),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.green,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSnapshotCard(
-                    log.mood,
-                    moodLabels[log.mood] ?? 'Neutral',
-                    AppTheme.lightGreen,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildSnapshotCard(
-                    Icons.battery_charging_full,
-                    'Energy: ${log.energyLevel.split(' ').first}',
-                    energyColors[log.energyLevel] ?? AppTheme.mediumGray,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSnapshotCard(
-                    Icons.graphic_eq,
-                    'Stress: ${log.stressLevel < 5 ? 'Low' : log.stressLevel < 7 ? 'Moderate' : 'High'}',
-                    log.stressLevel < 5 
-                        ? AppTheme.burnoutLowColor 
-                        : log.stressLevel < 7 
-                            ? AppTheme.burnoutMediumColor 
-                            : AppTheme.burnoutHighColor,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildSnapshotCard(
-                    Icons.work_outline,
-                    'Workload: $workloadLabel',
-                    workloadLabel == 'Low' 
-                        ? AppTheme.burnoutLowColor 
-                        : workloadLabel == 'Moderate' 
-                            ? AppTheme.burnoutMediumColor 
-                            : AppTheme.burnoutHighColor,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+              const SizedBox(width: 16),
+              Text('Low Risk', style: GoogleFonts.outfit(color: Colors.green, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ],
       ),
     );
   }
-  
-  Widget _buildSnapshotCard(dynamic icon, String label, Color color) {
+
+  Widget _buildMetricsGrid() {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 16,
+      crossAxisSpacing: 16,
+      childAspectRatio: 1.2,
+      children: [
+        _buildMetricItem(Icons.bedtime_outlined, 'Sleep', '7.8 hrs', Colors.blue),
+        _buildMetricItem(Icons.fitness_center, 'Activity', '60 mins', Colors.orange),
+        _buildMetricItem(Icons.work_outline, 'Workload', 'Moderate', Colors.purple),
+        _buildMetricItem(Icons.waves, 'Stress', 'Low', Colors.teal),
+      ],
+    );
+  }
+
+  Widget _buildMetricItem(IconData icon, String title, String value, Color color) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.5)),
+        color: Colors.white.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (icon is String)
-            Text(icon, style: const TextStyle(fontSize: 32))
-          else
-            Icon(icon, color: color, size: 32),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
+          Icon(icon, color: color, size: 24),
+          const Spacer(),
+          Text(title, style: GoogleFonts.outfit(color: Colors.white70, fontSize: 12)),
+          Text(value, style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold)),
         ],
-      ),
-    );
-  }
-  
-  Widget _buildBurnoutStatus(BurnoutModel burnout, {required BurnoutProvider burnoutProvider}) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Burnout Status & Insights',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.primaryBlue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Burnout Risk Level',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  BurnoutIndicator(level: burnout.level),
-                  const SizedBox(height: 12),
-                  Text(
-                    burnout.explanation,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Trend
-            Text(
-              'Your Trend',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 200,
-              child: _buildTrendChart(burnoutProvider: burnoutProvider),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppTheme.accentYellow.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.celebration, color: AppTheme.accentOrange),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Keep up the great work! Your efforts in maintaining balance are paying off.',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const InterventionsScreen()),
-                );
-              },
-              child: const Text('View Recommendations'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildWeeklyTrend({required BurnoutProvider burnoutProvider}) {
-    final trendData = burnoutProvider.getWeeklyTrendData();
-    
-    if (trendData.isEmpty) {
-      return const Card(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text('Complete daily check-ins to see your trend'),
-        ),
-      );
-    }
-    
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Last 7 Days Trend',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 200,
-              child: LineChart(
-                LineChartData(
-                  gridData: const FlGridData(show: false),
-                  titlesData: const FlTitlesData(show: false),
-                  borderData: FlBorderData(show: false),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: trendData.asMap().entries.map((entry) {
-                        return FlSpot(
-                          entry.key.toDouble(),
-                          entry.value['riskScore'] as double,
-                        );
-                      }).toList(),
-                      isCurved: true,
-                      color: AppTheme.primaryPurple,
-                      barWidth: 3,
-                      dotData: const FlDotData(show: true),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: AppTheme.primaryPurple.withOpacity(0.1),
-                      ),
-                    ),
-                  ],
-                  minY: 0,
-                  maxY: 100,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Widget _buildTrendChart({required BurnoutProvider burnoutProvider}) {
-    final trendData = burnoutProvider.getWeeklyTrendData();
-    
-    if (trendData.isEmpty) {
-      return const Center(child: Text('No trend data available'));
-    }
-    
-    return LineChart(
-      LineChartData(
-        gridData: const FlGridData(show: false),
-        titlesData: FlTitlesData(
-          leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              getTitlesWidget: (value, meta) {
-                if (value.toInt() < trendData.length) {
-                  final date = trendData[value.toInt()]['date'] as DateTime;
-                  return Text(
-                    Formatters.formatShortDate(date),
-                    style: const TextStyle(fontSize: 10),
-                  );
-                }
-                return const Text('');
-              },
-            ),
-          ),
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        ),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: trendData.asMap().entries.map((entry) {
-              return FlSpot(
-                entry.key.toDouble(),
-                entry.value['riskScore'] as double,
-              );
-            }).toList(),
-            isCurved: true,
-            color: AppTheme.burnoutLowColor,
-            barWidth: 3,
-            dotData: const FlDotData(show: true),
-            belowBarData: BarAreaData(
-              show: true,
-              color: AppTheme.burnoutLowColor.withOpacity(0.1),
-            ),
-          ),
-        ],
-        minY: 0,
-        maxY: 100,
       ),
     );
   }

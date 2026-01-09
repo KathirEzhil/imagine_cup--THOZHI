@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../providers/user_provider.dart';
 import '../../widgets/app_logo.dart';
 import '../../widgets/gradient_button.dart';
@@ -69,90 +70,89 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.lightPink,
+      backgroundColor: AppTheme.softRose,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 40),
-                const AppLogo(size: 100, showTagline: true),
-                const SizedBox(height: 48),
+                const SizedBox(height: 60),
+                const Center(child: AppLogo(size: 160)),
+                const SizedBox(height: 24),
                 Text(
-                  'Login',
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  'Your trusted companion\nfor balance & well-being',
                   textAlign: TextAlign.center,
+                  style: GoogleFonts.outfit(
+                    fontSize: 16,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                    height: 1.4,
+                  ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 60),
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'Enter your email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                    hintText: 'Email ID',
                   ),
-                  validator: Validators.validateEmail,
+                  validator: (value) => value == null || value.isEmpty ? 'Please enter email' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    hintText: 'Enter your password',
-                    prefixIcon: const Icon(Icons.lock_outlined),
+                    hintText: 'Password',
                     suffixIcon: IconButton(
                       icon: Icon(
                         _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        color: AppTheme.deepBlue,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
+                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                     ),
                   ),
-                  validator: Validators.validateRequired,
+                  validator: (value) => value == null || value.isEmpty ? 'Please enter password' : null,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 48),
                 if (_isLoading)
-                  const Center(child: CircularProgressIndicator())
+                  const Center(child: CircularProgressIndicator(color: Colors.white))
                 else
-                  GradientButton(
-                    text: 'Login',
+                  ElevatedButton(
                     onPressed: _handleLogin,
+                    child: const Text('Login'),
                   ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
+                OutlinedButton(
+                  onPressed: () {
+                    final userProv = Provider.of<UserProvider>(context, listen: false);
+                    userProv.enableGuestMode();
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Try as Guest (for demo)'),
+                ),
+                const SizedBox(height: 48),
                 TextButton(
                   onPressed: () {
-                    // TODO: Navigate to forgot password
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const SignUpScreen()),
+                    );
                   },
-                  child: const Text('Forgot Password?'),
-                ),
-                const SizedBox(height: 32),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'New user - ',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                  child: Text(
+                    'new user - sign up to register',
+                    style: GoogleFonts.outfit(
+                      color: AppTheme.deepBlue,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const SignUpScreen()),
-                        );
-                      },
-                      child: const Text('sign up to register'),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
