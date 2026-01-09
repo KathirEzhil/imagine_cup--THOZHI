@@ -237,18 +237,35 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  void enableGuestMode() {
-    _isGuest = true;
-    _user = UserModel(
-      id: 'guest_user',
-      name: 'Thozhi Friend',
-      email: 'guest@example.com',
-      createdAt: DateTime.now(),
-      profileCompleted: true,
-    );
-    _isOnboardingComplete = true;
-    _hasConsent = true;
-    notifyListeners();
+  Future<bool> enableGuestMode() async {
+    _setLoading(true);
+    try {
+      final credential = await _authService.signInAnonymously();
+      if (credential?.user != null) {
+        _isGuest = true;
+        await loadUser(credential!.user!.uid);
+        // For guest, ensure name is set
+        if (_user != null && (_user!.name == 'User' || _user!.name.isEmpty)) {
+          await updateProfile({'name': 'Thozhi Friend'});
+        }
+        _isOnboardingComplete = true;
+        _hasConsent = true;
+        
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(AppConstants.prefOnboardingComplete, true);
+        await prefs.setBool(AppConstants.prefConsentGiven, true);
+        
+        notifyListeners();
+        _error = null;
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _setLoading(false);
+    }
   }
   
   Future<void> deleteAccount() async {

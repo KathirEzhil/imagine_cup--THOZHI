@@ -27,6 +27,18 @@ class AuthService {
     }
   }
   
+  // Sign in anonymously (for guest mode)
+  Future<UserCredential?> signInAnonymously() async {
+    try {
+      final credential = await _auth.signInAnonymously();
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthException(e);
+    } catch (e) {
+      throw 'An error occurred. Please try again.';
+    }
+  }
+  
   // Sign up with email and password
   Future<UserCredential?> signUpWithEmail(String email, String password, String name) async {
     try {

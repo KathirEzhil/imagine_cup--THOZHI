@@ -42,43 +42,38 @@ class BurnoutProvider with ChangeNotifier {
       // Calculate burnout after loading logs
       if (_recentLogs.isNotEmpty) {
         await calculateBurnout(userId);
+      } else {
+        // Initialize empty state if no logs
+        _currentBurnout = BurnoutModel(
+          id: _uuid.v4(),
+          userId: userId,
+          date: DateTime.now(),
+          level: BurnoutLevel.low,
+          riskScore: 0,
+          explanation: 'Welcome! Complete your first check-in to start tracking your wellness.',
+          riskFactors: [],
+        );
       }
     } catch (e) {
-      if (userId == 'guest_user') {
-        _generateMockLogs();
-        _error = null;
-      } else {
-        _error = e.toString();
-      }
+      _error = e.toString();
     } finally {
       _setLoading(false);
     }
   }
 
-  void _generateMockLogs() {
-    final now = DateTime.now();
-    _recentLogs = List.generate(14, (index) {
-      final date = now.subtract(Duration(days: 13 - index));
-      return DailyLogModel(
-        id: 'mock_$index',
-        userId: 'guest_user',
-        date: DateTime(date.year, date.month, date.day),
-        stressLevel: 4.0 + (index % 5),
-        energyLevel: ['Low', 'Moderate', 'High'][index % 3],
-        mood: ['😢', '😐', '😌', '😊'][index % 4],
-        sleepHours: 6.0 + (index % 3),
-        activityMinutes: 15 + (index * 5) % 45,
-        workloadIntensity: 4.0 + (index % 4),
-        createdAt: date,
-      );
-    });
-    
-    _todayLog = _recentLogs.last;
-    _currentBurnout = BurnoutModel.calculateFromLogs('guest_user', _recentLogs);
-    _burnoutHistory = [_currentBurnout!];
-    notifyListeners();
+  Future<void> loadBurnoutHistory(String userId) async {
+    _setLoading(true);
+    try {
+      final assessment = await _firestoreService.getLatestBurnoutAssessment(userId);
+      _currentBurnout = assessment;
+      _error = null;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _setLoading(false);
+    }
   }
-  
+
   Stream<List<DailyLogModel>> streamDailyLogs(String userId) {
     return _firestoreService.streamDailyLogs(userId).map((logs) {
       _recentLogs = logs;
@@ -161,7 +156,7 @@ class BurnoutProvider with ChangeNotifier {
           date: DateTime.now(),
           level: BurnoutLevel.low,
           riskScore: 0,
-          explanation: 'No data available yet. Please complete your daily check-ins to get burnout predictions.',
+          explanation: 'Welcome! Complete your first check-in to start tracking your wellness.',
           riskFactors: [],
         );
         notifyListeners();
@@ -186,26 +181,6 @@ class BurnoutProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _error = e.toString();
-    }
-  }
-  
-  Future<void> loadBurnoutHistory(String userId) async {
-    _setLoading(true);
-    try {
-      _currentBurnout = await _firestoreService.getLatestBurnoutAssessment(userId);
-      // Note: streamBurnoutAssessments returns a stream, so we'd use that for real-time updates
-      _error = null;
-    } catch (e) {
-      if (userId == 'guest_user') {
-        _error = null;
-        if (_currentBurnout == null) {
-          _generateMockLogs();
-        }
-      } else {
-        _error = e.toString();
-      }
-    } finally {
-      _setLoading(false);
     }
   }
   

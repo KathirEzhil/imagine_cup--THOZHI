@@ -148,13 +148,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       
                       // Skip/Demo Button
                       OutlinedButton(
-                        onPressed: () {
+                        onPressed: _isLoading ? null : () async {
+                          setState(() => _isLoading = true);
                           final userProv = Provider.of<UserProvider>(context, listen: false);
-                          userProv.enableGuestMode();
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (_) => const DashboardScreen()),
-                            (route) => false,
-                          );
+                          final success = await userProv.enableGuestMode();
+                          
+                          if (!mounted) return;
+                          setState(() => _isLoading = false);
+                          
+                          if (success) {
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                              (route) => false,
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(userProv.error ?? 'Guest login failed'),
+                                backgroundColor: AppTheme.accentRed,
+                              ),
+                            );
+                          }
                         },
                         child: Text(
                           'Skip this option for now\n(for demo)',
@@ -162,6 +176,43 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           style: GoogleFonts.outfit(height: 1.2),
                         ),
                       ),
+                      const SizedBox(height: 24),
+                      // Real Sign Up Button (if data entered)
+                      if (_emailController.text.isNotEmpty || _phoneController.text.isNotEmpty)
+                        ElevatedButton(
+                          onPressed: _isLoading ? null : () async {
+                            if (!_formKey.currentState!.validate()) return;
+                            setState(() => _isLoading = true);
+                            final userProv = Provider.of<UserProvider>(context, listen: false);
+                            
+                            bool success = false;
+                            if (_emailController.text.isNotEmpty) {
+                               success = await userProv.signUpWithEmail(
+                                _emailController.text.trim(),
+                                'Welcome123!', // Temporary password for simple demo signup
+                                'New Friend',
+                              );
+                            }
+                            
+                            if (!mounted) return;
+                            setState(() => _isLoading = false);
+                            
+                            if (success) {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                                (route) => false,
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(userProv.error ?? 'Sign up failed'),
+                                  backgroundColor: AppTheme.accentRed,
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text('Register Now'),
+                        ),
                       const SizedBox(height: 40),
                     ],
                   ),

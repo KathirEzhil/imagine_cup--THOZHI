@@ -127,13 +127,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 const SizedBox(height: 24),
                 OutlinedButton(
-                  onPressed: () {
+                  onPressed: _isLoading ? null : () async {
+                    setState(() => _isLoading = true);
                     final userProv = Provider.of<UserProvider>(context, listen: false);
-                    userProv.enableGuestMode();
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const DashboardScreen()),
-                      (route) => false,
-                    );
+                    final success = await userProv.enableGuestMode();
+                    
+                    if (!mounted) return;
+                    setState(() => _isLoading = false);
+                    
+                    if (success) {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+                        (route) => false,
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(userProv.error ?? 'Guest login failed'),
+                          backgroundColor: AppTheme.accentRed,
+                        ),
+                      );
+                    }
                   },
                   child: const Text('Try as Guest (for demo)'),
                 ),
