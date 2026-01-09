@@ -1,0 +1,57 @@
+name: thozhi
+description: A wellness application for homemakers that predicts burnout and provides personalized interventions
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State Management
+  provider: ^6.1.1
+  
+  # Firebase
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.15.3
+  cloud_firestore: ^4.13.6
+  firebase_messaging: ^14.7.10
+  firebase_storage: ^11.5.6
+  
+  # UI & Navigation
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.20.2
+  fl_chart: ^0.66.0
+  google_fonts: ^6.1.0
+  smooth_page_indicator: ^1.1.0
+  
+  # Utilities
+  shared_preferences: ^2.2.2
+  uuid: ^4.2.1
+  intl_phone_field: ^3.2.0
+  flutter_local_notifications: ^16.3.0
+  url_launcher: ^6.2.3
+  
+  # Icons
+  cupertino_icons: ^1.0.6
+  flutter_svg: ^2.0.9
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/icons/
+  
+  fonts:
+    - family: CustomIcons
+      fonts:
+        - asset: assets/fonts/CustomIcons.ttf
