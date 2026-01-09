@@ -94,21 +94,21 @@ class _AlertsScreenState extends State<AlertsScreen> {
                         subtitle: const Text('Gentle alerts when burnout risk is detected'),
                         value: true,
                         onChanged: (value) {},
-                        activeColor: AppTheme.primaryPurple,
+                        activeThumbColor: AppTheme.primaryPurple,
                       ),
                       SwitchListTile(
                         title: const Text('Self-Care Reminders'),
                         subtitle: const Text('Daily reminders to take care of yourself'),
                         value: true,
                         onChanged: (value) {},
-                        activeColor: AppTheme.primaryPurple,
+                        activeThumbColor: AppTheme.primaryPurple,
                       ),
                       SwitchListTile(
                         title: const Text('Daily Check-In Reminders'),
                         subtitle: const Text('Reminders to complete your daily check-in'),
                         value: true,
                         onChanged: (value) {},
-                        activeColor: AppTheme.primaryPurple,
+                        activeThumbColor: AppTheme.primaryPurple,
                       ),
                     ],
                   ),
@@ -122,7 +122,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.notifications_none,
                             size: 64,
                             color: AppTheme.textLight,

@@ -57,7 +57,7 @@ class _InterventionsScreenState extends State<InterventionsScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.info_outline, color: AppTheme.primaryBlue, size: 20),
+                        const Icon(Icons.info_outline, color: AppTheme.primaryBlue, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Personalized for: ${burnout?.levelString ?? 'Low'} Risk Level',
@@ -306,7 +306,7 @@ class _InterventionsScreenState extends State<InterventionsScreen> {
                   ),
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, color: AppTheme.textLight, size: 18),
+              const Icon(Icons.arrow_forward_ios, color: AppTheme.textLight, size: 18),
             ],
           ),
         ),

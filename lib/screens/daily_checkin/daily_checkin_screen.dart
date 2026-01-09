@@ -5,7 +5,6 @@ import '../../providers/burnout_provider.dart';
 import '../../widgets/gradient_button.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/constants/app_constants.dart';
-import '../../core/utils/formatters.dart';
 import '../dashboard/dashboard_screen.dart';
 
 class DailyCheckInScreen extends StatefulWidget {

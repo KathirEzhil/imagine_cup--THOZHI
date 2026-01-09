@@ -249,7 +249,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                           ),
                           const SizedBox(height: 16),
                           DropdownButtonFormField<String>(
-                            value: _selectedLanguage,
+                            initialValue: _selectedLanguage,
                             decoration: const InputDecoration(
                               labelText: 'Preferred Language',
                               prefixIcon: Icon(Icons.language),
@@ -297,7 +297,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                                 _notificationsEnabled = value;
                               });
                             },
-                            activeColor: AppTheme.primaryPurple,
+                            activeThumbColor: AppTheme.primaryPurple,
                           ),
                         ),
                         const Divider(height: 1),

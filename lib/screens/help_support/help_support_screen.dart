@@ -89,7 +89,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.emergency, color: AppTheme.accentRed),
+                          const Icon(Icons.emergency, color: AppTheme.accentRed),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(

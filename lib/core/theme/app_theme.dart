@@ -40,12 +40,10 @@ class AppTheme {
         primary: primaryBlue,
         secondary: primaryPurple,
         surface: Colors.white,
-        background: lightPink,
         error: accentRed,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: textDark,
-        onBackground: textDark,
         onError: Colors.white,
       ),
       textTheme: GoogleFonts.interTextTheme(

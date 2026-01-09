@@ -61,7 +61,7 @@ class _EmotionalSupportScreenState extends State<EmotionalSupportScreen> {
                   padding: const EdgeInsets.all(20.0),
                   child: Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.favorite,
                         color: AppTheme.primaryPurple,
                         size: 48,

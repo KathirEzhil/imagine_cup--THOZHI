@@ -13,7 +13,6 @@ import '../daily_checkin/daily_checkin_screen.dart';
 import '../insights/insights_screen.dart';
 import '../personal_time/personal_time_screen.dart';
 import '../interventions/interventions_screen.dart';
-import '../profile_settings/profile_settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

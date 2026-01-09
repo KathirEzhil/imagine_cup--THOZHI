@@ -18,7 +18,7 @@ class _ProfilingScreenState extends State<ProfilingScreen> {
   final PageController _pageController = PageController();
   
   // Profile data
-  Map<String, dynamic> _profileData = {};
+  final Map<String, dynamic> _profileData = {};
   
   final List<ProfileQuestion> _questions = [
     ProfileQuestion(
@@ -285,7 +285,7 @@ class _ProfilingScreenState extends State<ProfilingScreen> {
                 ),
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );

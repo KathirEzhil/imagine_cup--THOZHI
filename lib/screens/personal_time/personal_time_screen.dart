@@ -11,7 +11,7 @@ class PersonalTimeScreen extends StatefulWidget {
 }
 
 class _PersonalTimeScreenState extends State<PersonalTimeScreen> {
-  int _dailyMeTimeMinutes = 30; // This would come from tracking
+  final int _dailyMeTimeMinutes = 30; // This would come from tracking
   final List<Map<String, dynamic>> _weeklyData = [
     {'day': 'Mon', 'minutes': 25},
     {'day': 'Tue', 'minutes': 35},
@@ -55,7 +55,7 @@ class _PersonalTimeScreenState extends State<PersonalTimeScreen> {
                   padding: const EdgeInsets.all(24.0),
                   child: Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.timer,
                         color: AppTheme.primaryPurple,
                         size: 48,
@@ -106,7 +106,7 @@ class _PersonalTimeScreenState extends State<PersonalTimeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Average: ${weeklyAverage} mins/day',
+                            'Average: $weeklyAverage mins/day',
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
@@ -124,7 +124,7 @@ class _PersonalTimeScreenState extends State<PersonalTimeScreen> {
                         height: 200,
                         child: BarChart(
                           BarChartData(
-                            gridData: FlGridData(show: false),
+                            gridData: const FlGridData(show: false),
                             titlesData: FlTitlesData(
                               leftTitles: AxisTitles(
                                 sideTitles: SideTitles(
@@ -152,8 +152,8 @@ class _PersonalTimeScreenState extends State<PersonalTimeScreen> {
                                   },
                                 ),
                               ),
-                              topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                              rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                             ),
                             borderData: FlBorderData(show: false),
                             barGroups: _weeklyData.asMap().entries.map((entry) {

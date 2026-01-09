@@ -365,7 +365,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.celebration, color: AppTheme.accentOrange),
+                  const Icon(Icons.celebration, color: AppTheme.accentOrange),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -420,8 +420,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
               height: 200,
               child: LineChart(
                 LineChartData(
-                  gridData: FlGridData(show: false),
-                  titlesData: FlTitlesData(show: false),
+                  gridData: const FlGridData(show: false),
+                  titlesData: const FlTitlesData(show: false),
                   borderData: FlBorderData(show: false),
                   lineBarsData: [
                     LineChartBarData(
@@ -434,7 +434,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
                       isCurved: true,
                       color: AppTheme.primaryPurple,
                       barWidth: 3,
-                      dotData: FlDotData(show: true),
+                      dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
                         color: AppTheme.primaryPurple.withOpacity(0.1),
@@ -461,9 +461,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
     
     return LineChart(
       LineChartData(
-        gridData: FlGridData(show: false),
+        gridData: const FlGridData(show: false),
         titlesData: FlTitlesData(
-          leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -479,8 +479,8 @@ class _InsightsScreenState extends State<InsightsScreen> {
               },
             ),
           ),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         borderData: FlBorderData(show: false),
         lineBarsData: [
@@ -494,7 +494,7 @@ class _InsightsScreenState extends State<InsightsScreen> {
             isCurved: true,
             color: AppTheme.burnoutLowColor,
             barWidth: 3,
-            dotData: FlDotData(show: true),
+            dotData: const FlDotData(show: true),
             belowBarData: BarAreaData(
               show: true,
               color: AppTheme.burnoutLowColor.withOpacity(0.1),

@@ -115,10 +115,10 @@ class _OTPVerificationScreenState extends State<OTPVerificationScreen> {
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     letterSpacing: 8,
                   ),
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Enter OTP',
                     hintText: '000000',
-                    prefixIcon: const Icon(Icons.lock_outlined),
+                    prefixIcon: Icon(Icons.lock_outlined),
                     helperText: 'Enter the 6-digit code sent to your phone',
                   ),
                   validator: Validators.validateOTP,

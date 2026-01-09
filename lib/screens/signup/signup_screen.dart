@@ -59,7 +59,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     // Generate a temporary password or use email link
     // For MVP, use a simple approach
-    final tempPassword = 'Temp123!'; // In production, use email verification link
+    const tempPassword = 'Temp123!'; // In production, use email verification link
     
     final success = await userProvider.signUpWithEmail(
       _emailController.text.trim(),
@@ -217,7 +217,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: _selectedLanguage,
+                  initialValue: _selectedLanguage,
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.language),
                   ),

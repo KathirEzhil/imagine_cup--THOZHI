@@ -21,7 +21,7 @@ class AppLogo extends StatelessWidget {
         Container(
           width: size,
           height: size,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: AppTheme.primaryBlue,
             shape: BoxShape.circle,
           ),
